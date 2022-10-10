@@ -1,198 +1,182 @@
-"""imports"""
-from pygame.locals import *
-from random import randint
+# importing libraries
 import pygame
 import time
+import random
+
+snake_speed = 15
+
+# Window size
+window_x = 720
+window_y = 480
+
+# defining colors
+black = pygame.Color(0, 0, 0)
+white = pygame.Color(255, 255, 255)
+red = pygame.Color(255, 0, 0)
+green = pygame.Color(0, 255, 0)
+blue = pygame.Color(0, 0, 255)
+
+# Initialising pygame
+pygame.init()
+
+# Initialise game window
+pygame.display.set_caption("GeeksforGeeks Snakes")
+game_window = pygame.display.set_mode((window_x, window_y))
+
+# FPS (frames per second) controller
+fps = pygame.time.Clock()
+
+# defining snake default position
+snake_position = [100, 50]
+
+# defining first 4 blocks of snake body
+snake_body = [[100, 50], [90, 50], [80, 50], [70, 50]]
+# fruit position
+fruit_position = [
+    random.randrange(1, (window_x // 10)) * 10,
+    random.randrange(1, (window_y // 10)) * 10,
+]
+
+fruit_spawn = True
+
+# setting default snake direction towards
+# right
+direction = "RIGHT"
+change_to = direction
+
+# initial score
+score = 0
+
+# displaying Score function
+def show_score(choice, color, font, size):
+
+    # creating font object score_font
+    score_font = pygame.font.SysFont(font, size)
+
+    # create the display surface object
+    # score_surface
+    score_surface = score_font.render("Score : " + str(score), True, color)
+
+    # create a rectangular object for the text
+    # surface object
+    score_rect = score_surface.get_rect()
+
+    # displaying text
+    game_window.blit(score_surface, score_rect)
 
 
-class Apple:
-    x = 0
-    y = 0
-    step = 44
+# game over function
+def game_over():
 
-    def __init__(self, x, y):
-        self.x = x * self.step
-        self.y = y * self.step
+    # creating font object my_font
+    my_font = pygame.font.SysFont("times new roman", 50)
 
-    def draw(self, surface, image):
-        surface.blit(image, (self.x, self.y))
+    # creating a text surface on which text
+    # will be drawn
+    game_over_surface = my_font.render("Your Score is : " + str(score), True, red)
 
+    # create a rectangular object for the text
+    # surface object
+    game_over_rect = game_over_surface.get_rect()
 
-class Player:
-    x = [0]
-    y = [0]
-    step = 44
-    direction = 0
-    length = 3
+    # setting position of the text
+    game_over_rect.midtop = (window_x / 2, window_y / 4)
 
-    updateCountMax = 2
-    updateCount = 0
+    # blit will draw the text on screen
+    game_window.blit(game_over_surface, game_over_rect)
+    pygame.display.flip()
 
-    def __init__(self, length):
-        self.length = length
-        for i in range(0, 2000):
-            self.x.append(-100)
-            self.y.append(-100)
+    # after 2 seconds we will quit the program
+    time.sleep(2)
 
-        # initial positions, no collision.
-        self.x[1] = 1 * 44
-        self.x[2] = 2 * 44
+    # deactivating pygame library
+    pygame.quit()
 
-    def update(self):
-
-        self.updateCount = self.updateCount + 1
-        if self.updateCount > self.updateCountMax:
-
-            # update previous positions
-            for i in range(self.length - 1, 0, -1):
-                self.x[i] = self.x[i - 1]
-                self.y[i] = self.y[i - 1]
-
-            # update position of head of snake
-            if self.direction == 0:
-                self.x[0] = self.x[0] + self.step
-            if self.direction == 1:
-                self.x[0] = self.x[0] - self.step
-            if self.direction == 2:
-                self.y[0] = self.y[0] - self.step
-            if self.direction == 3:
-                self.y[0] = self.y[0] + self.step
-
-            self.updateCount = 0
-
-    def moveRight(self):
-        self.direction = 0
-
-    def moveLeft(self):
-        self.direction = 1
-
-    def moveUp(self):
-        self.direction = 2
-
-    def moveDown(self):
-        self.direction = 3
-
-    def draw(self, surface, image):
-        for i in range(0, self.length):
-            surface.blit(image, (self.x[i], self.y[i]))
+    # quit the program
+    quit()
 
 
-class Game:
-    def isCollision(self, x1, y1, x2, y2, bsize):
-        if x1 >= x2 and x1 <= x2 + bsize:
-            if y1 >= y2 and y1 <= y2 + bsize:
-                return True
-        return False
+# Main Function
+while True:
 
+    # handling key events
+    for event in pygame.event.get():
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_UP:
+                change_to = "UP"
+            if event.key == pygame.K_DOWN:
+                change_to = "DOWN"
+            if event.key == pygame.K_LEFT:
+                change_to = "LEFT"
+            if event.key == pygame.K_RIGHT:
+                change_to = "RIGHT"
 
-class App:
+    # If two keys pressed simultaneously
+    # we don't want snake to move into two
+    # directions simultaneously
+    if change_to == "UP" and direction != "DOWN":
+        direction = "UP"
+    if change_to == "DOWN" and direction != "UP":
+        direction = "DOWN"
+    if change_to == "LEFT" and direction != "RIGHT":
+        direction = "LEFT"
+    if change_to == "RIGHT" and direction != "LEFT":
+        direction = "RIGHT"
 
-    windowWidth = 800
-    windowHeight = 600
-    player = 0
-    apple = 0
+    # Moving the snake
+    if direction == "UP":
+        snake_position[1] -= 10
+    if direction == "DOWN":
+        snake_position[1] += 10
+    if direction == "LEFT":
+        snake_position[0] -= 10
+    if direction == "RIGHT":
+        snake_position[0] += 10
 
-    def __init__(self):
-        self._running = True
-        self._display_surf = None
-        self._image_surf = None
-        self._apple_surf = None
-        self.game = Game()
-        self.player = Player(3)
-        self.apple = Apple(5, 5)
+    # Snake body growing mechanism
+    # if fruits and snakes collide then scores
+    # will be incremented by 10
+    snake_body.insert(0, list(snake_position))
+    if (
+        snake_position[0] == fruit_position[0]
+        and snake_position[1] == fruit_position[1]
+    ):
+        score += 10
+        fruit_spawn = False
+    else:
+        snake_body.pop()
 
-    def on_init(self):
-        pygame.init()
-        self._display_surf = pygame.display.set_mode(
-            (self.windowWidth, self.windowHeight), pygame.HWSURFACE
-        )
+    if not fruit_spawn:
+        fruit_position = [
+            random.randrange(1, (window_x // 10)) * 10,
+            random.randrange(1, (window_y // 10)) * 10,
+        ]
 
-        pygame.display.set_caption("Pygame pythonspot.com example")
-        self._running = True
-        self._image_surf = pygame.image.load("snakepy\head.png").convert()
-        self._apple_surf = pygame.image.load("snakepy\ block.png").convert()
+    fruit_spawn = True
+    game_window.fill(black)
 
-    def on_event(self, event):
-        if event.type == QUIT:
-            self._running = False
+    for pos in snake_body:
+        pygame.draw.rect(game_window, green, pygame.Rect(pos[0], pos[1], 10, 10))
+    pygame.draw.rect(
+        game_window, white, pygame.Rect(fruit_position[0], fruit_position[1], 10, 10)
+    )
 
-    def on_loop(self):
-        self.player.update()
+    # Game Over conditions
+    if snake_position[0] < 0 or snake_position[0] > window_x - 10:
+        game_over()
+    if snake_position[1] < 0 or snake_position[1] > window_y - 10:
+        game_over()
 
-        # does snake eat apple?
-        for i in range(0, self.player.length):
-            if self.game.isCollision(
-                self.apple.x, self.apple.y, self.player.x[i], self.player.y[i], 44
-            ):
-                self.apple.x = randint(2, 9) * 44
-                self.apple.y = randint(2, 9) * 44
-                self.player.length = self.player.length + 1
+    # Touching the snake body
+    for block in snake_body[1:]:
+        if snake_position[0] == block[0] and snake_position[1] == block[1]:
+            game_over()
 
-        # does snake collide with itself?
-        for i in range(2, self.player.length):
-            if self.game.isCollision(
-                self.player.x[0],
-                self.player.y[0],
-                self.player.x[i],
-                self.player.y[i],
-                40,
-            ):
-                print("You lose! Collision: ")
-                print(
-                    "x[0] (" + str(self.player.x[0]) + "," + str(self.player.y[0]) + ")"
-                )
-                print(
-                    "x["
-                    + str(i)
-                    + "] ("
-                    + str(self.player.x[i])
-                    + ","
-                    + str(self.player.y[i])
-                    + ")"
-                )
-                exit(0)
+    # displaying score countinuously
+    show_score(1, white, "times new roman", 20)
 
-        pass
+    # Refresh game screen
+    pygame.display.update()
 
-    def on_render(self):
-        self._display_surf.fill((0, 0, 0))
-        self.player.draw(self._display_surf, self._image_surf)
-        self.apple.draw(self._display_surf, self._apple_surf)
-        pygame.display.flip()
-
-    def on_cleanup(self):
-        pygame.quit()
-
-    def on_execute(self):
-        if self.on_init() is False:
-            self._running = False
-
-        while self._running:
-            pygame.event.pump()
-            keys = pygame.key.get_pressed()
-
-            if keys[K_RIGHT]:
-                self.player.moveRight()
-
-            if keys[K_LEFT]:
-                self.player.moveLeft()
-
-            if keys[K_UP]:
-                self.player.moveUp()
-
-            if keys[K_DOWN]:
-                self.player.moveDown()
-
-            if keys[K_ESCAPE]:
-                self._running = False
-
-            self.on_loop()
-            self.on_render()
-
-            time.sleep(50.0 / 1000.0)
-        self.on_cleanup()
-
-
-if __name__ == "__main__":
-    theApp = App()
-    theApp.on_execute()
+    # Frame Per Second /Refresh Rate
+    fps.tick(snake_speed)
