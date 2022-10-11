@@ -1,12 +1,17 @@
-"""imports"""
+"""importing libraries"""
 import random
 import time
 import pygame
+
 
 SNAKE_SPEED = 15
 
 # FPS (frames per second) controller
 fps = pygame.time.Clock()
+
+# Window size
+WINDOW_X = 800
+WINDOW_Y = 600
 
 # defining colors
 black = pygame.Color(0, 0, 0)
@@ -15,25 +20,26 @@ red = pygame.Color(255, 0, 0)
 green = pygame.Color(0, 255, 0)
 blue = pygame.Color(0, 0, 255)
 
-
+# insert code
 pygame.init()
 
-WINDOW_X = 800
-WINDOW_Y = 600
 game_window = pygame.display.set_mode((WINDOW_X, WINDOW_Y))
 
-pygame.display.set_caption("captions")
+pygame.display.set_caption("Super Snake game")
 icon = pygame.image.load("head.png")
 pygame.display.set_icon(icon)
 
-playerimg = pygame.image.load("head.png")
-snake_body = [[100, 50], [90, 50], [80, 50], [70, 50]]
+snake_face = pygame.image.load("head.png")
+playerx = 64
+playery = 64
+rect_1 = snake_face.get_rect()
+
+
+snake_body = [[game_window.blit(snake_face, rect_1)]]
+
+
+# defining snake default position
 snake_position = [100, 50]
-
-
-def player():
-    game_window.blit(playerimg, snake_position)
-
 
 # fruit position
 fruit_position = [
@@ -50,7 +56,6 @@ CHANGE_TO = DIRECTION
 
 # initial score
 SCORE = 0
-
 
 # displaying Score function
 def show_score(choice, color, font, size):
@@ -101,10 +106,8 @@ def game_over():
     quit()
 
 
-running = True
-while running:
-
-    game_window.fill((0, 0, 0))
+# Main Function
+while True:
 
     # handling key events
     for event in pygame.event.get():
@@ -164,9 +167,11 @@ while running:
 
     for pos in snake_body:
         pygame.draw.rect(game_window, green, pygame.Rect(pos[0], pos[1], 10, 10))
-    pygame.draw.rect(
-        game_window, white, pygame.Rect(fruit_position[0], fruit_position[1], 10, 10)
-    )
+        pygame.draw.rect(
+            game_window,
+            white,
+            pygame.Rect(fruit_position[0], fruit_position[1], 10, 10),
+        )
 
     # Game Over conditions
     if snake_position[0] < 0 or snake_position[0] > WINDOW_X - 10:
@@ -174,11 +179,16 @@ while running:
     if snake_position[1] < 0 or snake_position[1] > WINDOW_Y - 10:
         game_over()
 
+    # Touching the snake body
+    for block in snake_body[1:]:
+        if snake_position[0] == block[0] and snake_position[1] == block[1]:
+            game_over()
+
     # displaying score countinuously
     show_score(1, white, "roboto", 20)
 
-    player()
     # Refresh game screen
     pygame.display.update()
+
     # Frame Per Second /Refresh Rate
     fps.tick(SNAKE_SPEED)

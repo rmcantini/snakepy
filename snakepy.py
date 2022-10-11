@@ -21,7 +21,7 @@ blue = pygame.Color(0, 0, 255)
 pygame.init()
 
 # Initialise game window
-pygame.display.set_caption("GeeksforGeeks Snakes")
+pygame.display.set_caption("Joguinho de Cobrinha")
 game_window = pygame.display.set_mode((WINDOW_X, WINDOW_Y))
 
 # FPS (frames per second) controller
@@ -32,6 +32,7 @@ snake_position = [100, 50]
 
 # defining first 4 blocks of snake body
 snake_body = [[100, 50], [90, 50], [80, 50], [70, 50]]
+
 # fruit position
 fruit_position = [
     random.randrange(1, (WINDOW_X // 10)) * 10,
@@ -70,7 +71,7 @@ def show_score(choice, color, font, size):
 def game_over():
 
     # creating font object my_font
-    my_font = pygame.font.SysFont("times new roman", 50)
+    my_font = pygame.font.SysFont("roboto", 50)
 
     # creating a text surface on which text
     # will be drawn
@@ -174,7 +175,7 @@ while True:
             game_over()
 
     # displaying score countinuously
-    show_score(1, white, "times new roman", 20)
+    show_score(1, white, "roboto", 20)
 
     # Refresh game screen
     pygame.display.update()
